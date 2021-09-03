@@ -26,7 +26,7 @@ SECRET_KEY = '^p-^29l3v&52se$_*l(1fz!jlnfwjad5zr6r88zh1q$!)&4g*0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['nflprognosticate.herokuapp.com', 'localhost']
 
 
 # Application definition
