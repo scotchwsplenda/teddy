@@ -77,11 +77,14 @@ WSGI_APPLICATION = 'teddy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dcrqdv3v99evdr',
+        'HOST' : 'ec2-3-237-55-151.compute-1.amazonaws.com',
+        'PORT' : 5432,
+        'USER' : 'vthtpixsubxgsf',
+        'PASSWORD' : '14789aaa108b264db82def8ea994391702b893952c8a0287db1e9c3f30508861'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
