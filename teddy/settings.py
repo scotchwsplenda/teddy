@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '^p-^29l3v&52se$_*l(1fz!jlnfwjad5zr6r88zh1q$!)&4g*0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['nflprognosticate.herokuapp.com', 'localhost']
 
