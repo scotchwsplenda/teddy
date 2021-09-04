@@ -3,13 +3,15 @@
 {% block content %}
 
         {% csrf_token %}
-    <h1>  What is this? What does it mean? How does it work? Why am I here?</h1>
+<div class="container">
+        <h1> Welcome To NFL prognosticate! </h1>
+    <h3>  What is this? What does it mean? How does it work? Why am I here?</h3>
         <h2>
     <ul>
-    <li>This website is an opportunity for you to prognosticate on the upcoming NFL season with regard to the scores of upcoming games. This exercise is called "Submit". </li>
-    <li>You can compare what you prognosticated with what other dudes prognosticated. This exercise is called "Compare". </li>
-    <li>When the time space continuum carries us from the realm of prognostication into the realm of reflection you can compare the prognostications of yourself and others with cold, hard, refreshing reality (insofar as reality is reflected in the scores of football games). This exercise is called "Accuracy". </li>
-    <li>You will be graded on your accuracy using a technically sophisticated algorythm made specifically out of math.</li>
+    <li>This website is an opportunity for you to prognosticate on the upcoming NFL season with regard to the scores of upcoming games. This exercise is called <a href="/cool_form">Submit</a>. </li>
+    <li>You can compare what you prognosticated with what other dudes prognosticated. This exercise is called <a href="/results">Compare</a>. </li>
+    <li>When the time space continuum carries us from the realm of prognostication into the realm of reflection you can compare the prognostications of yourself and others with cold, hard, refreshing reality (insofar as reality is reflected in the scores of football games). This exercise is called <a href="/accuracy">Accuracy</a>. </li>
+    <li>You will be graded on your accuracy using a technically sophisticated algorithm made specifically out of math.</li>
     <li>You may be curious to know that the math algorythm works thusly: </li>
      <ol style="list-style-type: lower-alpha; padding-bottom: 0;">
             <li>How closely you progged the point differential</li>
@@ -50,4 +52,5 @@
             </tr>
         </table>
     <li>Please note this website uses the term 'dude' strictly in the non-gendered sense.</li>
+</div>
 {% endblock %}
