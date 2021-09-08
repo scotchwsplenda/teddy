@@ -19,14 +19,15 @@ def cool_form_view(request, acr):
     table = pd.read_html(url, match='Game Results Table')
     df = table[0]
     df.columns=['Week','Day','Date','Time','BoxScore','Result','OT','Rec','Home_Away','Opp','HawkScore','OppScore','1stD','TotYd','PassY','RushY','TO','1stD','TotYd','PassY','RushY','TO','Offense','Defense','Sp. Tms']
-    df['Home_Away'].fillna('VS.', inplace=True)
-    df['Title'] = +df['Home_Away']+' '+df['Opp']+' -'+df['Day']+' '+df['Date']+' @ '+df['Time']
+    df.loc[df['Home_Away'].isnull(), 'Home_Away'] = 'VS.'
+    df.loc[df['Home_Away'] == '@', 'Home_Away'] = 'AT'
+    df['Title'] = df['Home_Away']+' '+df['Opp']+' -'+df['Day']+' '+df['Date']+' @ '+df['Time']
     cols = []
     for x in range(len(df)):
         y = df['Title'][x]
         cols.append(str(y))
-    indy = [cols.index(x) for x in cols if x[-6:]=='Season']
-    cols = cols[indy[0]+1:]
+    # indy = [cols.index(x) for x in cols if x[-6:]=='Season']
+    # cols = cols[indy[0]+1:]
     weeks = ['W'+str(x+1)+' ' for x in range(18)]
     schedule = [i + j for i, j in zip(weeks, cols)]
 
