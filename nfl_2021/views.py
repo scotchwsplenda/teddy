@@ -72,12 +72,12 @@ def results_view(request, acr):
     url = 'https://www.pro-football-reference.com/teams/'+acr+'/2021.htm'
     table = pd.read_html(url, match='Game Results Table')
     df = table[0]
+    df.columns=['Week','Day','Date','Time','BoxScore','Result','OT','Rec','Home_Away','Opp','HawkScore','OppScore','1stD','TotYd','PassY','RushY','TO','1stD','TotYd','PassY','RushY','TO','Offense','Defense','Sp. Tms']
     cols = []
     for x in range(len(df)):
         y = df['Opp'][x]
         cols.append(str(y).split()[-1])
-    indy = cols.index('Season')
-    cols = cols[indy+1:]
+
     new_col = ['Pigskins' if word == 'Team' else 'Bye' if word == 'Week' else word for word in cols]
     weeks = ['W'+str(x+1)+' ' for x in range(18)]
     res = [i + j for i, j in zip(weeks, new_col)]
