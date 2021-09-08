@@ -18,8 +18,9 @@ def cool_form_view(request, acr):
     url = 'https://www.pro-football-reference.com/teams/'+acr+'/2021.htm'
     table = pd.read_html(url, match='Game Results Table')
     df = table[0]
-    df['Unnamed: 4'].fillna('VS.', inplace=True)
-    df['Title'] = +df['Unnamed: 4']+' '+df['Opp']+' -'+df['Day']+' '+df['Date']+' @ '+df['Unnamed: 3']
+    df.columns=['Week','Day','Date','Time','BoxScore','Result','OT','Rec','Home_Away','Opp','HawkScore','OppScore','1stD','TotYd','PassY','RushY','TO','1stD','TotYd','PassY','RushY','TO','Offense','Defense','Sp. Tms']
+    df['Home_Away'].fillna('VS.', inplace=True)
+    df['Title'] = +df['Home_Away']+' '+df['Opp']+' -'+df['Day']+' '+df['Date']+' @ '+df['Time']
     cols = []
     for x in range(len(df)):
         y = df['Title'][x]
