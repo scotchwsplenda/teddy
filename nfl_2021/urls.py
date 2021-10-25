@@ -8,6 +8,8 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='nfl_2021/home.html')),
     path('results/', views.choose_results_view),
     path('results/<acr>', views.results_view, name='results_team'),
-    path('accuracy/', TemplateView.as_view(template_name='nfl_2021/accuracy.html')),
+    path('accuracy/', views.choose_accuracy_view),
+    path('accuracy/<acr>', views.diffy_view, name='diffy_view_name'),
+    
 
 ]

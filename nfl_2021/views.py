@@ -125,3 +125,35 @@ def results_view(request, acr):
     
     # {'spreads_html' : spreads_html, 'record' : result.to_html(classes="table table-striped table-bordered table-hover", index=False, border=1),'average_record':average_record.to_html(classes="table table-striped table-bordered table-hover", index=False, border=1) })
 
+
+def choose_accuracy_view(request):
+    team_view_form = nfl_teams.objects.all()
+    team_acr = str(request.POST.get('butts'))
+    if request.method=='POST':
+        return redirect('diffy_view_name', acr = team_acr)
+    return render(request, "nfl_2021/team.html", {'form': team_view_form, 'phrase' : 'prognosticate on'})
+
+def diffy_view(request, acr):
+    result = pd.DataFrame(list(predicted_score.objects.all().filter(team = acr).values()))
+    result = result.set_index('author')
+    hawkscore_df = result.iloc[:,3:-1:2]
+    oppscore_df = result.iloc[:,4:-1:2]
+    print(oppscore_df)
+    oppscore_df.fillna(0, inplace=True)
+    hawkscore_df.fillna(0, inplace=True)
+    colnames = list(oppscore_df)
+    hawkscore_df.columns = colnames
+    spreads = hawkscore_df.subtract(oppscore_df)
+    spreads.reset_index(level=0, inplace=True) # all this to get the predicted spreads
+    spreads = spreads.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=False)
+    print(spreads)
+    url = 'https://www.pro-football-reference.com/teams/'+acr+'/2021.htm'
+    table = pd.read_html(url, match='Game Results Table')
+    df = table[0]
+    scores = df.iloc[:, 10:12]
+    scores.columns = scores.columns.to_flat_index()
+    scores.columns=(['Tm', 'Opp'])
+    scores['Diffy']  =scores['Tm']-scores['Opp'] # all this to get the actual spreads
+    scores = scores.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=False)
+    return render(request, "nfl_2021/accuracy_scores.html", {'spreaiiiis' : spreads, 'scores':scores})
+    
