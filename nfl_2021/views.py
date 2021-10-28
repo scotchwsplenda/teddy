@@ -131,29 +131,110 @@ def choose_accuracy_view(request):
     team_acr = str(request.POST.get('butts'))
     if request.method=='POST':
         return redirect('diffy_view_name', acr = team_acr)
-    return render(request, "nfl_2021/team.html", {'form': team_view_form, 'phrase' : 'prognosticate on'})
+    return render(request, "nfl_2021/team.html", {'form': team_view_form, 'phrase' : 'see who knew what was what'})
 
 def diffy_view(request, acr):
     result = pd.DataFrame(list(predicted_score.objects.all().filter(team = acr).values()))
     result = result.set_index('author')
     hawkscore_df = result.iloc[:,3:-1:2]
     oppscore_df = result.iloc[:,4:-1:2]
-    print(oppscore_df)
     oppscore_df.fillna(0, inplace=True)
     hawkscore_df.fillna(0, inplace=True)
-    colnames = list(oppscore_df)
+    colnames = list(oppscore_df) #need identical column names to add/ subtract df's
     hawkscore_df.columns = colnames
-    spreads = hawkscore_df.subtract(oppscore_df)
-    spreads.reset_index(level=0, inplace=True) # all this to get the predicted spreads
-    spreads = spreads.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=False)
-    print(spreads)
+
+    guessedspreads = hawkscore_df.subtract(oppscore_df)
+    guessedspreads = guessedspreads.T
+
+    guessedoverunder = hawkscore_df.add(oppscore_df)
+    guessedoverunder = guessedoverunder.T 
+
     url = 'https://www.pro-football-reference.com/teams/'+acr+'/2021.htm'
     table = pd.read_html(url, match='Game Results Table')
     df = table[0]
     scores = df.iloc[:, 10:12]
     scores.columns = scores.columns.to_flat_index()
     scores.columns=(['Tm', 'Opp'])
-    scores['Diffy']  =scores['Tm']-scores['Opp'] # all this to get the actual spreads
-    scores = scores.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=False)
-    return render(request, "nfl_2021/accuracy_scores.html", {'spreaiiiis' : spreads, 'scores':scores})
+    scores['actualspread']  =scores['Tm']-scores['Opp'] # all this to get the actual spreads
+    scores['actualoverunder']  =scores['Tm']+scores['Opp'] 
+    scores['actualresult'] = scores['Tm'].astype(str).replace('\.0', '', regex=True)+'-'+scores['Opp'].astype(str).replace('\.0', '', regex=True)
+    scores['actualresult'] = scores['actualresult'].replace('nan-nan', 'TBD', regex=True)
+
+    proggs = hawkscore_df.astype(str).add(' - ').add(oppscore_df.astype(str))
+    proggs.reset_index(level=0, inplace=True)
+    proggs = proggs.set_index('author').T
+    proggs.insert(loc=0,column ='Actual Score', value= list(scores['actualresult']))
+    proggs.set_index('Actual Score', inplace=True)
+    # proggs.drop('author', axis=1)
+    proggs = proggs.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=True)
+
+    # https://stackoverflow.com/questions/58567199/memory-efficient-way-for-list-comprehension-of-pandas-dataframe-using-multiple-c/62064720
+    SP = [guessedspreads[i].values for i in guessedspreads.columns]
+    
+    SpreadAccuracy = {}
+    for guesser in SP:
+        ditty = []  
+        for guess,diff in zip(guesser[1:], scores['actualspread']): 
+            if diff==99:
+                ditty.append(None)
+            elif (guess*diff)>0:  
+                ditty.append(guess-diff)
+            else:
+                ditty.append('X')
+        SpreadAccuracy[guesser[0]] = ditty
+
+    SpreadAccuracyScore = {}
+    for guesser in SP:
+        ditty = []  
+        for guess,diff in zip(guesser[1:], scores['actualspread']): 
+            if diff==None:
+                ditty.append(None)
+            elif (guess*diff)>0:  
+                if abs(guess-diff) > 3.5:
+                    ditty.append(95)
+                elif abs(guess-diff) > 7.5:
+                    ditty.append(90)
+                elif abs(guess-diff) > 10.5:
+                    ditty.append(85)    
+                elif abs(guess-diff) > 14.5:
+                    ditty.append(80)
+                elif abs(guess-diff) > 21.5:
+                    ditty.append(75)
+                else:
+                    ditty.append(100)
+            else:
+                ditty.append(0)
+        SpreadAccuracyScore[guesser[0]] = ditty
+
+    spready = pd.DataFrame.from_dict(SpreadAccuracyScore)
+    spready.loc['Total']= spready.sum(skipna=True, axis=0)
+
+    GOU = [guessedoverunder[i].values for i in guessedoverunder.columns]
+    OverunderScore = {}
+    for guesser in GOU:
+        ditty = []  
+        for guess,diff in zip(guesser[1:], scores['actualoverunder']): 
+            if diff==None:
+                ditty.append(None)
+            elif abs(guess-diff) > 21.5:
+                ditty.append(75)
+            elif abs(guess-diff) > 14.5:
+                ditty.append(80)
+            elif abs(guess-diff) > 10.5:
+                ditty.append(85)    
+            elif abs(guess-diff) > 7.5:
+                ditty.append(90)
+            elif abs(guess-diff) > 3.5:
+                ditty.append(95)
+            else:
+                ditty.append(100)
+        OverunderScore[guesser[0]] = ditty
+
+
+    overundy = pd.DataFrame.from_dict(OverunderScore)
+    overundy.loc['Total']= overundy.sum(skipna=True, axis=0)
+
+    total = overundy.add(spready)
+    
+    return render(request, "nfl_2021/accuracy_scores.html", {'spreaiiiis' : proggs})
     
