@@ -171,7 +171,7 @@ def diffy_view(request, acr):
     proggs = hawkscore_df.astype(str).add(' - ').add(oppscore_df.astype(str))
     proggs.reset_index(level=0, inplace=True)
     proggs = proggs.set_index('author').T
-    proggs.insert(loc=0,column ='Actual Score', value= list(scores['actualresult']))
+    proggs.insert(loc=0,column ='Actual Score', value= res)
     proggs.set_index('Actual Score', inplace=True)
     proggs = proggs.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=True)
 
@@ -228,11 +228,21 @@ def diffy_view(request, acr):
 
         SpreadAccuracyScore[guesser[0]] = ditty
     spready = pd.DataFrame.from_dict(SpreadAccuracyScore)
-    spready.loc['Total']= spready.sum(skipna=True, axis=0)
-
-
+    spready.loc[ 'Total']= spready.sum(skipna=True, axis=0)
+    
+    
     prog_scoredboard = spready.add(overundy)
+    # prog_scoredboard.sort_index(axis=0,ascending=False) 
+
+    # res.insert(0, 'Prognosticator')
+    res.append('Total')
+    prog_scoredboard['Prognosticator'] = res
+    print(prog_scoredboard)
+    prog_scoredboard.set_index('Prognosticator', inplace=True)
+    print(prog_scoredboard)
     prog_leaderboard = prog_scoredboard.T
+    prog_leaderboard = prog_leaderboard[ ['Total'] + [ col for col in prog_leaderboard.columns if col != 'Total' ] ]
+    # prog_leaderboard.columns = res
 
     prog_leaderboard.sort_values(by = ['Total'], ascending=False, inplace=True)
     prog_leaderboard  = prog_leaderboard.to_html(classes="table table-striped table-bordered table-hover", border=1,  index=True)
